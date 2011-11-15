@@ -40,7 +40,7 @@ public class LogglyAppender extends AppenderSkeleton {
 
 	private int proxyPort = -1;
 
-	private BlockingQueue<Entry> queue = new ArrayBlockingQueue<Entry>(1000);
+	private BlockingQueue<Entry> queue = new ArrayBlockingQueue<Entry>(5000);
 
 	private final Object waitLock = new Object();
 
@@ -177,6 +177,9 @@ public class LogglyAppender extends AppenderSkeleton {
 						default: {
 							LogLog.error("Received error code " + response
 									+ " from Loggly servers.");
+							for (Entry message : messages) {
+								queue.offer(message);
+							}
 						}
 						}
 					} catch (IOException e) {
@@ -358,7 +361,7 @@ public class LogglyAppender extends AppenderSkeleton {
 	}
 
 	/**
-	 * Set the maximum queue size for uploads. Defaults to 1000.
+	 * Set the maximum queue size for uploads. Defaults to 5000.
 	 * 
 	 * @param batchSize
 	 */

@@ -16,7 +16,7 @@ Usage is relatively straight forward.
       <param name="proxyPort" value="The port number for the proxy"/> <!-- Optional value -->
       <!-- The maximum number of messages to upload in a single http POST -->
       <param name="batchSize" value="50"/>
-      <param name="queueSize" value="1000"/>
+      <param name="queueSize" value="5000"/>
       <layout class="org.apache.log4j.EnhancedPatternLayout">
         <!-- Pattern to upload.  Will use the pattern layout specified when uploading -->
         <param name="ConversionPattern" value="%d{ISO8601}{GMT}Z %5p [%t]  %m%n" />
@@ -30,7 +30,7 @@ or
     log4j.appender.loggly.proxyHost=example.com
     log4j.appender.loggly.proxyPort=8080
     log4j.appender.loggly.batchSize=50
-    log4j.appender.loggly.queueSize=1000
+    log4j.appender.loggly.queueSize=5000
     log4j.appender.loggly.layout=org.apache.log4j.EnhancedPatternLayout
     log4j.appender.loggly.layout.ConversionPattern=%d{ISO8601}{GMT}Z %5p [%t]  %m%n
 
@@ -38,13 +38,13 @@ or
 
 # Architecture.
 
-Modified to no longer user the HSQL db
+Modified to no longer uses the embedded HSQL db
 
-1. Log4j appender write an entry to a queue in an embedded HSQL db
-2. An asynchronous reader thread reads the oldest entry from the HSQL db and
+1. Log4j appender writes an entry to a queue
+2. An asynchronous reader thread reads the oldest entry from the queue and
 uploads it to the configured url.
 
-This supports guaranteed delivery.  If the logger cannot contact Loggly,
+This supports retried delivery.  If the logger cannot contact Loggly,
      a log4j internal message will be logged, and message will queue locally.
      The sending thread will continue to attempt to connect until it succeeds.  
      Excepts when the request http status codes i 400 Bad Request - then the messages is dumped.
