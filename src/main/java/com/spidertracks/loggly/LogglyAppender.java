@@ -82,7 +82,10 @@ public class LogglyAppender extends AppenderSkeleton {
 		entry.setMessage(output);
 		entry.setTime(System.nanoTime());
 
-		queue.offer(entry);
+		synchronized (waitLock) {
+			queue.offer(entry);
+			waitLock.notify();
+		}
 
 		if (poster.getState() == ThreadState.STOPPED) {
 			LogLog.debug("Noticed thread stopped!");
